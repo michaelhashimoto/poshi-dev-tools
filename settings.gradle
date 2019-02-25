@@ -1,0 +1,4 @@
+rootProject.name = 'poshi-runner-tester'
+
+include ':poshi-runner'
+project(':poshi-runner').projectDir = new File(settingsDir, '../com-liferay-poshi-runner/poshi-runner')
