@@ -1,0 +1,97 @@
+<definition>
+	<var name="rootVar" value="set in the macro" />
+
+	<command name="nestedMacro">
+		<echo message="nestedMacro: ${rootVar}" />
+
+		<execute macro="Macro#macro">
+			<var name="rootVar" value="${rootVar}" />
+		</execute>
+	</command>
+
+	<command name="macro">
+		<echo>macro</echo>
+	</command>
+
+	<command name="exclusiveOr">
+		<echo>${A}</echo>
+		<echo>${B}</echo>
+
+		<if>
+			<or>
+				<and>
+					<isset var="A" />
+					<isset var="B" />
+				</and>
+				<and>
+					<not>
+						<isset var="B" />
+					</not>
+					<not>
+						<isset var="A" />
+					</not>
+				</and>
+			</or>
+			<then>
+				<echo>A: ${A}</echo>
+				<echo>B: ${B}</echo>
+
+				<echo message="This should fail" />
+			</then>
+		</if>
+	</command>
+
+	<command name="returnTest">
+		<var name="varName" value="var value" />
+
+		<if>
+			<equals arg1="true" arg2="true" />
+			<then>
+				<return value="${varName}"/>
+
+				<execute macro="Macro#test" />
+			</then>
+			<else>
+				<return value="${varName}"/>
+			</else>
+		</if>
+
+		<!--<execute macro="Macro#test" />-->
+
+		<!--<return value="${varName}"/>-->
+	</command>
+
+	<command name="nested">
+		<execute macro="Macro#returnTest">
+			<return name="varName" />
+		</execute>
+
+		<return value="${varName}"/>
+	</command>
+
+	<command name="test">
+		<var name="varName" value="var value" />
+	</command>
+
+	<command name="callFunction">
+		<if>
+			<equals arg1="true" arg2="true" />
+			<then>
+				<var name="key_testVariable" value="${testVariable}" />
+
+				<execute function="Function#pathLocator" locator1="Path#PATH" />
+			</then>
+		</if>
+
+		<if>
+			<equals arg1="true" arg2="true" />
+			<then>
+				<var name="testVariable" value="another" />
+
+				<execute function="Function#pathLocator" locator1="Path#PATH">
+					<var name="key_testVariable" value="${testVariable}" />
+				</execute>
+			</then>
+		</if>
+	</command>
+</definition>
