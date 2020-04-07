@@ -17,8 +17,6 @@ package com.liferay.poshi.runner;
 import difflib.Chunk;
 import difflib.Delta;
 
-import java.util.List;
-
 /**
  * @author Kenji Heigel
  */
@@ -28,35 +26,35 @@ public class StringCompare {
 		Chunk original = delta.getOriginal();
 		Chunk revised = delta.getRevised();
 
-/*
-		List<?> originalLines = original.getLines();
-		List<?> revisedLines = revised.getLines();
+		/*
+				List<?> originalLines = original.getLines();
+				List<?> revisedLines = revised.getLines();
 
-		if (originalLines.size() == revisedLines.size()) {
-			boolean same = true;
+				if (originalLines.size() == revisedLines.size()) {
+					boolean same = true;
 
-			for (int i = 0; i < originalLines.size(); i++) {
-				if (originalLines.get(i).toString().length() !=
-						revisedLines.get(i).toString().length()) {
+					for (int i = 0; i < originalLines.size(); i++) {
+						if (originalLines.get(i).toString().length() !=
+								revisedLines.get(i).toString().length()) {
 
-					same = false;
+							same = false;
 
-					break;
+							break;
+						}
+					}
+
+					if (false) {
+						return;
+					}
 				}
-			}
-
-			if (false) {
-				return;
-			}
-		}
-*/
+		*/
 		_printCyanChunk(original);
 		_printYellowChunk(revised);
 	}
 
-	private static void _printRedChunk(Chunk chunk) {
+	private static void _printChunk(Chunk chunk) {
 		for (Object line : chunk.getLines()) {
-			System.out.println("\033[31m" + line.toString() + "\033[0m");
+			System.out.println(line.toString());
 		}
 	}
 
@@ -72,15 +70,15 @@ public class StringCompare {
 		}
 	}
 
-	private static void _printYellowChunk(Chunk chunk) {
+	private static void _printRedChunk(Chunk chunk) {
 		for (Object line : chunk.getLines()) {
-			System.out.println("\033[33m" + line.toString() + "\033[0m");
+			System.out.println("\033[31m" + line.toString() + "\033[0m");
 		}
 	}
 
-	private static void _printChunk(Chunk chunk) {
+	private static void _printYellowChunk(Chunk chunk) {
 		for (Object line : chunk.getLines()) {
-			System.out.println(line.toString());
+			System.out.println("\033[33m" + line.toString() + "\033[0m");
 		}
 	}
 

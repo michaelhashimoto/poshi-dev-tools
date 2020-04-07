@@ -16,22 +16,27 @@ package com.liferay.poshi.runner;
 
 import com.liferay.poshi.runner.elements.PoshiElement;
 import com.liferay.poshi.runner.elements.PoshiNodeFactory;
+import com.liferay.poshi.runner.script.PoshiScriptParserException;
 import com.liferay.poshi.runner.util.Dom4JUtil;
 import com.liferay.poshi.runner.util.ExecUtil;
 import com.liferay.poshi.runner.util.FileUtil;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.net.URL;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import java.util.concurrent.TimeoutException;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Kenji Heigel
@@ -41,9 +46,20 @@ public class PoshiScriptGenerator extends PoshiScriptEvaluator {
 	public static final String poshiDirName = PoshiScriptEvaluator.poshiDirName;
 	public static final String ticket = "LRQA-45878";
 
+	@BeforeClass
+	public static void setUp() throws Exception {
+		String[] poshiFileNames = {"**/*.function"};
+
+		PoshiRunnerContext.readFiles(poshiFileNames, poshiDirName);
+
+		PoshiRunnerContext.readFiles(
+			poshiFileNames,
+			"/Users/kenji/Projects/github/liferay-qa-websites-ee/shared");
+	}
+
 	@Test
 	public void generateFunctionsPoshiScript()
-		throws IOException, TimeoutException {
+		throws IOException, PoshiScriptParserException, TimeoutException {
 
 		for (String functionFilePath : getFunctionFilePaths()) {
 			generatePoshiScriptFile(functionFilePath);
@@ -57,7 +73,7 @@ public class PoshiScriptGenerator extends PoshiScriptEvaluator {
 
 	@Test
 	public void generateMacrosPoshiScript()
-		throws IOException, TimeoutException {
+		throws IOException, PoshiScriptParserException, TimeoutException {
 
 		for (String macroFilePath : getMacroFilePaths()) {
 			generatePoshiScriptFile(macroFilePath);
@@ -70,8 +86,17 @@ public class PoshiScriptGenerator extends PoshiScriptEvaluator {
 	}
 
 	@Test
+	public void generatePoshiScriptFile() throws IOException, TimeoutException {
+
+		//		String filePath = poshiDirName + "tests/enduser/wem/navigationmenus/NavigationMenus.testcase";
+
+		//
+		//		generatePoshiScriptFile(filePath);
+	}
+
+	@Test
 	public void generateTestCasesPoshiScript()
-		throws IOException, TimeoutException {
+		throws IOException, PoshiScriptParserException, TimeoutException {
 
 		for (String testCaseFilePath : getTestCaseFilePaths()) {
 			generatePoshiScriptFile(testCaseFilePath);
@@ -83,32 +108,14 @@ public class PoshiScriptGenerator extends PoshiScriptEvaluator {
 				" Translate *.testcase files to Poshi Script\"");
 	}
 
-	@Test
-	public void generatePoshiScriptFile()
-			throws IOException, TimeoutException {
+	protected void generatePoshiScriptFile(String filePath)
+		throws PoshiScriptParserException {
 
-//		String filePath = poshiDirName + "tests/enduser/wem/navigationmenus/NavigationMenus.testcase";
-//
-//		generatePoshiScriptFile(filePath);
-	}
-
-	@BeforeClass
-	public static void setUp() throws Exception {
-		String[] poshiFileNames = {"**/*.function"};
-
-		PoshiRunnerContext.readFiles(poshiFileNames, poshiDirName);
-
-		PoshiNodeFactory.setValidatePoshiScript(false);
-
-		PoshiRunnerContext.readFiles(poshiFileNames, "/Users/kenji/Projects/github/liferay-qa-websites-ee/shared");
-	}
-
-	protected void generatePoshiScriptFile(String filePath) {
 		try {
 			URL url = FileUtil.getURL(new File(filePath));
 
 			PoshiElement poshiElement =
-				(PoshiElement) PoshiNodeFactory.newPoshiNodeFromFile(url);
+				(PoshiElement)PoshiNodeFactory.newPoshiNodeFromFile(url);
 
 			String fileContent = FileUtil.read(filePath);
 
@@ -121,25 +128,26 @@ public class PoshiScriptGenerator extends PoshiScriptEvaluator {
 			String poshiScript = poshiElement.toPoshiScript();
 
 			PoshiElement newPoshiElement =
-				(PoshiElement) PoshiNodeFactory.newPoshiNode(poshiScript, url);
+				(PoshiElement)PoshiNodeFactory.newPoshiNode(poshiScript, url);
 
 			if (areElementsEqual(rootElement, poshiElement) &&
 				areElementsEqual(rootElement, newPoshiElement)) {
 
 				Files.write(
 					Paths.get(filePath),
-					poshiElement.toPoshiScript().getBytes());
+					poshiElement.toPoshiScript(
+					).getBytes());
 			}
 			else {
 				System.out.println("Could not generate poshi script:");
 				System.out.println(filePath);
 			}
 		}
-		catch (DocumentException de) {
-			de.printStackTrace();
+		catch (DocumentException documentException) {
+			documentException.printStackTrace();
 		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
+		catch (IOException ioException) {
+			ioException.printStackTrace();
 		}
 	}
 
